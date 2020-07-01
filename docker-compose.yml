@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  db:
+    image: mongo
+    container_name: db
+    env_file: ./db/env
+    volumes:
+      - "./db/data:/data/db"
+    networks:
+      exchange:
+        ipv4_address: 10.11.0.2
+
+networks:
+  exchange:
+    ipam:
+      config:
+        - subnet: 10.11.0.0/24

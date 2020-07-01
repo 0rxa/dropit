@@ -1,0 +1,16 @@
+{
+  "name": "dropit",
+  "version": "1.0.0",
+  "description": "backend for dropit",
+  "main": "index.js",
+  "scripts": {
+    "serve": "NODE_ENV=development node index.js",
+    "serve:production": "NODE_ENV=production node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.9.20"
+  }
+}

@@ -1,5 +1,10 @@
 const { PORT, DB_HOST, DB_USER, DB_PASS } = require('./config');
 
+if(process.env.NODE_ENV !== 'production') {
+	require('dotenv').config();
+}
+const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = process.env;
+
 const mongoose = require('mongoose');
 mongoose.Promise = Promise;
 
@@ -47,6 +52,41 @@ server.post('/post', (request, response) => {
 	});
 });
 
+server.post('/comment', (request, response) => {
+	const newComment = request.body;
+	comment = new Model.Comment(newComment);
+	comment.save((err, obj) => {
+		if(err) {
+			response.sendStatus(500);
+			return;
+		}
+
+		response.send(obj._id);
+	})
+});
+
+server.get('/comment/postId', (request, response) => {
+	const id = request.params.id;
+	if(id === undefined) {
+		response.sendStatus(500);
+		return;
+	}
+
+	Model.Comment.find( { post: id }, (err, obj) => {
+		if(err) {
+			response.sendStatus(500);
+			return;
+		}
+
+		if(obj.length < 1) {
+			response.sendStatus(404);
+			return;
+		}
+
+		response.send(JSON.stringify(obj));
+	})
+});
+
 server.post('/register', async (request, response) => {
 	let statusCode = 200;
 
@@ -84,12 +124,12 @@ server.post('/register', async (request, response) => {
 
 server.post('/login', (request, response) => {
 	user = request.body;
-	Model.User.find({ name: user.name, password: user.password }, (err, registeredUser) => {
+	Model.User.findOne({ name: user.name, password: user.password }, (err, registeredUser) => {
 		if(err) {
 			response.sendStatus(500);
 			return err;
 		}
-		if(registeredUser.length !== 1) {
+		if(registeredUser === null) {
 			response.sendStatus(404);
 			return null;
 		}

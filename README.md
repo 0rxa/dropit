@@ -24,4 +24,30 @@ POST /post
 	"media": String (bytearray encoded in base64)
 }
 Kthen ID e postit
+
+Per te komentuar
+POST /comment
+{
+	"postId": String,
+	"content": String
+}
+
+Per te listuar komentet ne nje post
+GET /comment/postId
+
+Per te log in
+POST /login
+{
+	"username": String,
+	"password": String
+}
+
+Per tu regjistruar
+POST /register
+{
+	"username": String,
+	"password": String,
+	"email": String
+}
+
 ```

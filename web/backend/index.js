@@ -65,9 +65,10 @@ server.post('/comment', (request, response) => {
 	})
 });
 
-server.get('/comment/postId', (request, response) => {
-	const id = request.params.id;
+server.get('/comment/:postId', (request, response) => {
+	const id = request.params.postId;
 	if(id === undefined) {
+		console.log('here');
 		response.sendStatus(500);
 		return;
 	}

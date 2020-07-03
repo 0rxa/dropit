@@ -6,17 +6,13 @@ const schema = Schema({
 		type: String,
 		required: true
 	},
-	"name": {
+	"post": {
 		type: String,
 		required: true
 	},
-	"description": {
+	"content": {
 		type: String,
 		required: false
-	},
-	"media": {
-		type: String,
-		required: true
 	},
 	"timestamp": {
 		type: Number,
@@ -24,4 +20,4 @@ const schema = Schema({
 	}
 });
 
-module.exports = mongoose.model('Post', schema);
+module.exports = mongoose.model('Comment', schema);

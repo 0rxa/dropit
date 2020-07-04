@@ -1,5 +1,6 @@
 const { PORT, DB_HOST, DB_USER, DB_PASS } = require('./config');
 
+const jwt = require('jsonwebtoken');
 if(process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
@@ -22,8 +23,7 @@ server.get('/posts', (request, response) => {
 	const oldest = Date.now() - timeframe;
 	Model.Post.find({ timestamp: { $gt: oldest } }, (err, posts) => {
 		if(err) {
-			response.sendStatus(500);
-			return err;
+			return response.sendStatus(500);
 		}
 		response.send(JSON.stringify(posts));
 	});
@@ -33,8 +33,7 @@ server.get('/posts/:id', (request, response) => {
 	const id = request.params.id ? request.params.id : 86400000;
 	Model.Post.findById(id, (err, posts) => {
 		if(err) {
-			response.sendStatus(500);
-			return err;
+			return response.sendStatus(500);
 		}
 		response.send(JSON.stringify(posts));
 	});
@@ -45,8 +44,7 @@ server.post('/post', (request, response) => {
 
 	post.save((err, obj) => {
 		if(err) {
-			response.sendStatus(500);
-			return err;
+			return response.sendStatus(500);
 		}
 		response.send(obj.id);
 	});
@@ -57,8 +55,7 @@ server.post('/comment', (request, response) => {
 	comment = new Model.Comment(newComment);
 	comment.save((err, obj) => {
 		if(err) {
-			response.sendStatus(500);
-			return;
+			return response.sendStatus(500);
 		}
 
 		response.send(obj._id);
@@ -69,19 +66,16 @@ server.get('/comment/:postId', (request, response) => {
 	const id = request.params.postId;
 	if(id === undefined) {
 		console.log('here');
-		response.sendStatus(500);
-		return;
+		return response.sendStatus(500);
 	}
 
 	Model.Comment.find( { post: id }, (err, obj) => {
 		if(err) {
-			response.sendStatus(500);
-			return;
+			return response.sendStatus(500);
 		}
 
 		if(obj.length < 1) {
-			response.sendStatus(404);
-			return;
+			return response.sendStatus(404);
 		}
 
 		response.send(JSON.stringify(obj));
@@ -108,15 +102,13 @@ server.post('/register', async (request, response) => {
 	});
 	
 	if(statusCode !== 200) {
-		response.sendStatus(statusCode)
-		return;
+		return response.sendStatus(statusCode)
 	}
 
 	const user = new Model.User(userData);
 	user.save((err, obj) => {
 		if(err) {
-			response.sendStatus(500);
-			return err;
+			return response.sendStatus(500);
 		}
 
 		response.send(obj.id);
@@ -124,20 +116,30 @@ server.post('/register', async (request, response) => {
 })
 
 server.post('/login', (request, response) => {
-	user = request.body;
+	let user = request.body;
 	Model.User.findOne({ name: user.name, password: user.password }, (err, registeredUser) => {
 		if(err) {
-			response.sendStatus(500);
-			return err;
+			return response.sendStatus(500);
 		}
 		if(registeredUser === null) {
-			response.sendStatus(404);
-			return null;
+			return response.sendStatus(404);
 		}
 
-		response.sendStatus(200);
+		delete user.password;
+		response.send(jwt.sign(user, ACCESS_TOKEN_SECRET));
 	});
 })
+
+function authenticate(request, response, next) {
+	const authHeader = request.headers['authorization'];
+	const token = authHeader && authHeader.split(' ')[1];
+
+	if(token == null) return res.sendStatus(401);
+
+	jwt.verify(token, ACCESS_TOKEN_SECRET, (err, user) => {
+		if(err) return res.sendStatus(403);
+	});
+}
 
 dbConnection.then(() => {
 	server.listen(PORT, () => {

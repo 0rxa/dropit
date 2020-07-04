@@ -18,7 +18,7 @@ const express = require('express')
 const server = express()
 server.use(express.json())
 
-server.get('/posts', (request, response) => {
+server.get('/posts', authenticate, (request, response) => {
 	const { timeframe } = request.query;
 	const oldest = Date.now() - timeframe;
 	Model.Post.find({ timestamp: { $gt: oldest } }, (err, posts) => {
@@ -29,7 +29,7 @@ server.get('/posts', (request, response) => {
 	});
 })
 
-server.get('/posts/:id', (request, response) => {
+server.get('/posts/:id', authenticate, (request, response) => {
 	const id = request.params.id ? request.params.id : 86400000;
 	Model.Post.findById(id, (err, posts) => {
 		if(err) {
@@ -39,7 +39,7 @@ server.get('/posts/:id', (request, response) => {
 	});
 });
 
-server.post('/post', (request, response) => {
+server.post('/post', authenticate, (request, response) => {
 	const post = new Model.Post(request.body);
 
 	post.save((err, obj) => {
@@ -50,7 +50,7 @@ server.post('/post', (request, response) => {
 	});
 });
 
-server.post('/comment', (request, response) => {
+server.post('/comment', authenticate, (request, response) => {
 	const newComment = request.body;
 	comment = new Model.Comment(newComment);
 	comment.save((err, obj) => {
@@ -62,10 +62,9 @@ server.post('/comment', (request, response) => {
 	})
 });
 
-server.get('/comment/:postId', (request, response) => {
+server.get('/comment/:postId', authenticate, (request, response) => {
 	const id = request.params.postId;
 	if(id === undefined) {
-		console.log('here');
 		return response.sendStatus(500);
 	}
 
@@ -134,15 +133,16 @@ function authenticate(request, response, next) {
 	const authHeader = request.headers['authorization'];
 	const token = authHeader && authHeader.split(' ')[1];
 
-	if(token == null) return res.sendStatus(401);
+	if(token == null) return response.sendStatus(401);
 
 	jwt.verify(token, ACCESS_TOKEN_SECRET, (err, user) => {
-		if(err) return res.sendStatus(403);
+		if(err) return response.sendStatus(403);
+		else next();
 	});
 }
 
 dbConnection.then(() => {
 	server.listen(PORT, () => {
-		console.log('server listening on 8080');
+		console.log(`server listening on ${PORT}`);
 	});
 })

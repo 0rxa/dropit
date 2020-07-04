@@ -6,16 +6,16 @@ const schema = Schema({
 		type: String,
 		required: true
 	},
-	"name": {
-		type: String,
-		required: true
-	},
 	"description": {
 		type: String,
 		required: false
 	},
 	"media": {
 		type: String,
+		required: true
+	},
+	"permissions": {
+		type: Array,
 		required: true
 	},
 	"timestamp": {

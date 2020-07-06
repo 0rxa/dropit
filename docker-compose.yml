@@ -7,7 +7,7 @@ services:
     volumes:
       - "./db/data:/data/db"
     networks:
-      exchange:
+      dropit:
         ipv4_address: 10.11.0.2
 
 networks:

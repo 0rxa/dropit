@@ -19,7 +19,7 @@ const server = express()
 server.use(express.json())
 
 server.get('/posts', (request, response) => {
-	const { timeframe } = request.query;
+	const timeframe = request.query.timeframe ? request.query.timeframe : 86400000;
 	const oldest = Date.now() - timeframe;
 	Model.Post.find({ timestamp: { $gt: oldest } }, (err, posts) => {
 		if(err) {
@@ -30,7 +30,6 @@ server.get('/posts', (request, response) => {
 })
 
 server.get('/posts/:id', (request, response) => {
-	const id = request.params.id ? request.params.id : 86400000;
 	Model.Post.findById(id, (err, posts) => {
 		if(err) {
 			return response.sendStatus(500);
@@ -47,6 +46,19 @@ server.post('/post', (request, response) => {
 			return response.sendStatus(500);
 		}
 		response.send(obj.id);
+	});
+});
+
+server['delete']('/delete/:id', (request, response) => {
+	if(!request.params.id) return response.sendStatus(400);
+
+	const id = request.params.id;
+	Model.Post.findOneAndDelete({ _id: id }, (err, obj) => {
+		if(err) {
+			console.log(err);
+			return response.sendStatus(500);
+		}
+		response.sendStatus(202);
 	});
 });
 

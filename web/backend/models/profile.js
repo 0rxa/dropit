@@ -6,7 +6,11 @@ const schema = Schema({
 		type: Array,
 		required: false
 	},
-	"members: {
+	"name": {
+		type: String,
+		required: true
+	},
+	"members": {
 		type: Array,
 		required: true
 	}

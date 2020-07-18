@@ -8,11 +8,15 @@ const schema = Schema({
 	},
 	"password": {
 		type: String,
-		required: false
+		required: true
 	},
 	"email": {
 		type: String,
-		default: Date.now()
+		required: true
+	},
+	"profiles": {
+		type: Array,
+		required: false
 	}
 });
 

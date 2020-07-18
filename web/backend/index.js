@@ -18,18 +18,19 @@ const express = require('express')
 const server = express()
 server.use(express.json())
 
-server.get('/posts', authenticate, (request, response) => {
-	const { timeframe } = request.query;
-	const oldest = Date.now() - timeframe;
-	Model.Post.find({ timestamp: { $gt: oldest } }, (err, posts) => {
-		if(err) {
-			return response.sendStatus(500);
-		}
-		response.send(JSON.stringify(posts));
+server.get('/posts', async (request, response) => {
+	const page = request.query.page ? parseInt(request.query.page) : 1;
+	const per_page = request.query.per_page ? parseInt(request.query.per_page) : 9;
+	const posts = await Model.Post.find().limit(per_page).skip((page-1)*per_page).exec();
+	const count = await Model.Post.countDocuments();
+
+	response.json({
+		posts,
+		totalPages: Math.ceil(count/per_page),
 	});
 })
 
-server.get('/posts/:id', authenticate, (request, response) => {
+server.get('/posts/:id', (request, response) => {
 	const id = request.params.id ? request.params.id : 86400000;
 	Model.Post.findById(id, (err, posts) => {
 		if(err) {
@@ -39,7 +40,7 @@ server.get('/posts/:id', authenticate, (request, response) => {
 	});
 });
 
-server.post('/post', authenticate, (request, response) => {
+server.post('/post', (request, response) => {
 	const post = new Model.Post(request.body);
 
 	post.save((err, obj) => {
@@ -50,7 +51,7 @@ server.post('/post', authenticate, (request, response) => {
 	});
 });
 
-server.post('/comment', authenticate, (request, response) => {
+server.post('/comment', (request, response) => {
 	const newComment = request.body;
 	comment = new Model.Comment(newComment);
 	comment.save((err, obj) => {
@@ -62,7 +63,7 @@ server.post('/comment', authenticate, (request, response) => {
 	})
 });
 
-server.get('/comment/:postId', authenticate, (request, response) => {
+server.get('/comment/:postId', (request, response) => {
 	const id = request.params.postId;
 	if(id === undefined) {
 		return response.sendStatus(500);

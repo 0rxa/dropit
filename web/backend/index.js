@@ -79,6 +79,23 @@ server.post('/profile/create', authenticate, (request, response) => {
 	})
 })
 
+server.post('/profile/add_member/:profileId', authenticate, (request, response) => {
+	const profileId = request.params.profileId;
+	let userDefinition = request.body;
+	Model.Profile.findOne({ _id: profileId }, (err, profile) => {
+		if(err) {
+			response.sendStatus(500);
+			return err;
+		}
+
+		const user = Model.User.find({ name: request.body.name }).exec();
+		delete userDefinition.name;
+		userDefinition.userId = user._id;
+
+		profile = profile.members.push(userDefinition);
+	});
+});
+
 server.post('/post/:profile', authenticate, async (request, response) => {
 	const profile = await Model.Profile.findOne({ _id: request.params.profile }).exec()
 	profile.posts.push({
@@ -97,16 +114,16 @@ server.post('/post/:profile', authenticate, async (request, response) => {
 	});
 });
 
-server.post('/comment/:profile/:post', authenticate, (request, response) => {
-	const { profile, postId } = request.params;
-	Model.Profile.findOne({ _id: profile }, (err, profile) => {
-		const post = profile.posts.find(post => post.id === postId);
-		post.comments.push({
+server.post('/comment/:profileId/:postId', authenticate, (request, response) => {
+	const { profileId, postId } = request.params;
+	Model.Profile.findOne({ _id: profileId }, (err, profile) => {
+		const profileIx = profile.posts.findIndex(post => post._id == postId)
+		profile.posts[profileIx].comments.push({
 			author: request.user.name,
 			content: request.body.content,
 			_id: Date.now()
 		});
-		Model.Profile.findOneAndUpdate({ _id: profile }, post, (err, obj) => {
+		Model.Profile.findOneAndUpdate({ _id: profileId }, profile, (err, obj) => {
 			console.log(obj);
 			if(err) {
 				response.sendStatus(500);

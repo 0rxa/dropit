@@ -6,21 +6,17 @@ const schema = Schema({
 		type: String,
 		required: true
 	},
-	"name": {
-		type: String,
-		required: true
+	"comments": {
+		type: Array,
+		required: false
 	},
 	"description": {
 		type: String,
 		required: false
 	},
-	"media": {
+	"content": {
 		type: String,
 		required: true
-	},
-	"timestamp": {
-		type: Number,
-		default: Date.now()
 	}
 });
 

@@ -9,6 +9,12 @@ services:
     networks:
       dropit:
         ipv4_address: 10.11.0.2
+  backend:
+    build: ./web/backend/
+    env_file: ./web/backend/.env
+    networks:
+      dropit:
+        ipv4_address: 10.11.0.3
 
 networks:
   dropit:

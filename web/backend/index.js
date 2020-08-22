@@ -21,6 +21,9 @@ server.use(express.json())
 let userRouter = require('./routes/user.js');
 let postRouter = require('./routes/post.js');
 
+app.use('/post', postRouter);
+app.use('/user', userRouter);
+
 function authenticate(request, response, next) {
 	const authHeader = request.headers['authorization'];
 	const token = authHeader && authHeader.split(' ')[1];

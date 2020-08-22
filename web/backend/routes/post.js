@@ -43,6 +43,17 @@ router.post('/:profile', authenticate, async (request, response) => {
 	});
 });
 
+router.get('/delete/:profileId/:postId', authenticate, (request, response) => {
+	const post = Model.Post.findOneAndDelete({ _id: request.params.postId }, (err, result) => {
+		if(err) {
+			response.sendStatus(500);
+			return;
+		}
+
+		response.sendStatus(201);
+	})
+});
+
 router.post('/comment/:profileId/:postId', authenticate, (request, response) => {
 	const { profileId, postId } = request.params;
 	Model.Profile.findOne({ _id: profileId }, (err, profile) => {

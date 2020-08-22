@@ -7,47 +7,102 @@ cd web/backend/
 npm run serve
 ```
 
-### Paths
+## Routes
 
-```
-Postimet e 24h te fundit, flasim ne unix time me milisekonda
-GET /posts?timeframe=86400000
+#### On /
 
-Postimi me kte id
-GET /posts/id
+POST /register
 
-Per te postuar
-POST /post
+```js
 {
 	"name": String,
-	"description": String (optional),
-	"media": String (bytearray encoded in base64)
-}
-Kthen ID e postit
-
-Per te komentuar
-POST /comment
-{
-	"postId": String,
-	"content": String
-}
-
-Per te listuar komentet ne nje post
-GET /comment/postId
-
-Per te log in
-POST /login
-{
-	"username": String,
-	"password": String
-}
-
-Per tu regjistruar
-POST /register
-{
-	"username": String,
 	"password": String,
 	"email": String
 }
+```
 
+**returns:** profile id of new user
+
+---
+
+POST /login
+
+```js
+{
+	"name": String,
+	"password": String
+}
+```
+
+**returns:** bearer token
+
+---
+
+#### On /post
+
+GET /:profileId
+
+**returns:** JSON object with posts on profile with :profileId
+
+---
+
+POST /:profileId
+
+```js
+{
+	"author": String,
+	"description": String,
+	"content": String,
+
+}
+```
+
+**returns:** object if of new post
+
+---
+
+POST /comment/:profileId/:postId
+
+```js
+{
+	"content": String
+}
+```
+
+**returns:** object id of new comment
+
+---
+
+GET /comment/:profileId/:postId
+
+**returns:** comments in specified post
+
+---
+
+#### On /profile
+
+GET /
+
+**returns:** JSON object with profiles of authenticated user
+
+---
+
+POST /create
+
+```js
+{
+	"name": String
+}
+```
+
+**returns:** object id of new profile
+
+---
+
+POST /add\_member/:profileId
+
+```js
+{
+	"name": String // Name of user to add as member
+}
 ```

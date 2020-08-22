@@ -12,7 +12,8 @@ services:
       dropit:
         ipv4_address: 10.11.0.2
   backend:
-    build: ./web/backend/
+    build:
+      dockerfile: ./web/backend.Dockerfile
     env_file: ./web/backend/.env
     networks:
       dropit:

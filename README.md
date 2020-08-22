@@ -1,10 +1,10 @@
 # dropit
 
-Ne docker-compose ka vetem databazen sa per testing se do bej gje tjeter per deployment.
-```
+## Deployment
+
+#### Locally
+```sh
 sudo docker-compose up -d
-cd web/backend/
-npm run serve
 ```
 
 ## Routes

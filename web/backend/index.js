@@ -16,147 +16,17 @@ const Model = require('./models')
 
 const express = require('express')
 const server = express()
+
+const Routes = require('./routes');
 server.use(express.json())
-
-server.get('/posts/:profile', authenticate, async (request, response) => {
-	const page = request.query.page ? parseInt(request.query.page) : 1;
-	const per_page = request.query.per_page ? parseInt(request.query.per_page) : 9;
-	//const posts = await Model.Post.find().limit(per_page).skip((page-1)*per_page).exec();
-	const profile = await Model.Profile
-		.findOne({ _id: request.params.profile })
-		.limit(per_page)
-		.skip((page-1)*per_page)
-		.exec();
-	const posts = profile['posts'];
-	const count = posts.length;
-
-	response.json({
-		posts,
-		totalPages: Math.ceil(count/per_page),
-	});
-})
-
-server.get('/profiles', authenticate, async (request, response) => {
-	const username = request.user.name;
-	const user = await Model.User
-		.findOne({ name: username })
-		.exec()
-	if(user['profiles'].length === 0) {
-		response.sendStatus(200);
-	} else {
-		response.send(JSON.stringify(user['profiles']));
-	}
-})
-
-server.post('/profile/create', authenticate, (request, response) => {
-	const username = request.user.name;
-	const profileDefinition = {
-		posts: [],
-		name: request.body.name,
-		members: [{
-			"userId": request.user._id,
-			"post": true,
-			"comment": true,
-			"add": true
-		}]
-	};
-	const profile = new Model.Profile(profileDefinition);
-	profile.save(async (err, obj) => {
-		if(err) {
-			return response.sendStatus(500);
-		}
-		const user = await Model.User.findOne({ _id: request.user.id }).exec()
-		user['profiles'].push(obj.id);
-		Model.User.findOneAndUpdate({ _id: request.user.id },
-			user, (err, user) => {
-				if(err) {
-					response.sendStatus(500);
-					return err;
-				} else {
-					response.send(obj.id);
-				}
-			});
-	})
-})
-
-server.post('/profile/add_member/:profileId', authenticate, (request, response) => {
-	const profileId = request.params.profileId;
-	let userDefinition = request.body;
-	Model.Profile.findOne({ _id: profileId }, (err, profile) => {
-		if(err) {
-			response.sendStatus(500);
-			return err;
-		}
-
-		const user = Model.User.find({ name: request.body.name }).exec();
-		delete userDefinition.name;
-		userDefinition.userId = user._id;
-
-		profile = profile.members.push(userDefinition);
-	});
-});
-
-server.post('/post/:profile', authenticate, async (request, response) => {
-	const profile = await Model.Profile.findOne({ _id: request.params.profile }).exec()
-	profile.posts.push({
-		author: request.user.name,
-		comments: [],
-		description: request.body.description ? request.body.description : null,
-		content: request.body.content,
-		_id: Date.now()
-	});
-	Model.Profile.findOneAndUpdate({ _id: request.params.profile }, profile, (err, obj) => {
-		if(err) {
-			response.sendStatus(500);
-			return err;
-		}
-		response.send(obj._id);
-	});
-});
-
-server.post('/comment/:profileId/:postId', authenticate, (request, response) => {
-	const { profileId, postId } = request.params;
-	Model.Profile.findOne({ _id: profileId }, (err, profile) => {
-		const profileIx = profile.posts.findIndex(post => post._id == postId)
-		profile.posts[profileIx].comments.push({
-			author: request.user.name,
-			content: request.body.content,
-			_id: Date.now()
-		});
-		Model.Profile.findOneAndUpdate({ _id: profileId }, profile, (err, obj) => {
-			console.log(obj);
-			if(err) {
-				response.sendStatus(500);
-				return err;
-			}
-			response.sendStatus(200);
-		});
-	});
-});
-
-server.get('/comment/:postId', (request, response) => {
-	const id = request.params.postId;
-	if(id === undefined) {
-		return response.sendStatus(500);
-	}
-
-	Model.Comment.find( { post: id }, (err, obj) => {
-		if(err) {
-			return response.sendStatus(500);
-		}
-
-		if(obj.length < 1) {
-			return response.sendStatus(404);
-		}
-
-		response.send(JSON.stringify(obj));
-	})
-});
+server.use('/post', Routes.postRouter);
+server.use('/profile', Routes.profileRouter);
 
 server.post('/register', async (request, response) => {
 	let statusCode = 200;
 
 	const userData = request.body;
+	console.log(request.body);
 	await Model.User.findOne({ $or: [
 		{ name: userData.name },
 		{ email: userData.email }

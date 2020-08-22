@@ -6,6 +6,8 @@ services:
     env_file: ./db/env
     volumes:
       - "./db/data:/data/db"
+    ports:
+      - "27017:27017"
     networks:
       dropit:
         ipv4_address: 10.11.0.2

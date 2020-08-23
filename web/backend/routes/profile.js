@@ -13,10 +13,17 @@ router.get('/', authenticate, async (request, response) => {
 	const user = await Model.User
 		.findOne({ name: username })
 		.exec()
+
 	if(user['profiles'].length === 0) {
-		response.sendStatus(200);
+		response.send(user['profiles']);
 	} else {
-		response.send(JSON.stringify(user['profiles']));
+		Model.Profile.find({
+			'_id': {
+				$in: user['profiles'].map(profileId => mongoose.Types.ObjectId(profileId))
+			}
+		}).then((result) => {
+			response.send(result);
+		});
 	}
 })
 

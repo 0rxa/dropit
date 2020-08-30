@@ -1,6 +1,8 @@
 FROM node
 
+WORKDIR /usr/src/app
+
 COPY ./backend .
 RUN npm install
 
-CMD [ "sh", "-c", "node ." ]
+CMD [ "npm", "run", "serve:production" ]

@@ -1,0 +1,7 @@
+resources:
+  - backend/deployment.yaml
+  - backend/service.yaml
+  - database/deployment.yaml
+  - database/service.yaml
+  - database/volume-claim.yaml
+  - ingress.yaml

@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dropit-ingress
+  namespace: dropit
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/proxy-body-size: 50m
+    kubernetes.io/ingress.class: nginx
+    nginx.org/client-max-body-size: 50m
+    nginx.org/proxy-connect-timeout: 30s
+    nginx.org/proxy-read-timeout: 20s
+spec:
+  rules:
+    - host: dropitapp.io
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: dropit-backend-service
+              servicePort: 80
+    - host: www.dropitapp.io
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: dropit-backend-service
+              servicePort: 80
+
+

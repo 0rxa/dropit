@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dropit-database
+  namespace: dropit
+  labels:
+    app: dropit-database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: dropit-database
+  template:
+    metadata:
+      labels:
+        app: dropit-database
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dropit-database-data-claim
+      containers:
+        - name: dropit-database
+          image: mongo
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: "root"
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: "1234"
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: data
+              mountPath: "/data/db"
+

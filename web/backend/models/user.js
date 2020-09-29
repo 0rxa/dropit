@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Post = require('./post');
 
 const schema = Schema({
-	"name": {
+	"username": {
 		type: String,
-		required: true
+		required: true,
+        unique: true
 	},
 	"password": {
 		type: String,
@@ -12,12 +14,21 @@ const schema = Schema({
 	},
 	"email": {
 		type: String,
+		required: true,
 		required: true
 	},
-	"profiles": {
-		type: Array,
-		required: false
-	}
+    "name": {
+        type: String,
+        required: true
+    },
+    "surname": {
+        type: String,
+        required: true
+    },
+    "folder": [{
+        type: Schema.ObjectId,
+        ref: "Post"
+    }]
 });
 
 module.exports = mongoose.model('User', schema);

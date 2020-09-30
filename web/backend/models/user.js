@@ -14,7 +14,6 @@ const schema = Schema({
 	},
 	"email": {
 		type: String,
-		required: true,
 		required: true
 	},
     "name": {

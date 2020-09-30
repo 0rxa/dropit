@@ -9,11 +9,11 @@ const schema = Schema({
     },
     "name": {
         type: String,
-        required: true
+        required: false
     },
     "desc": {
         type: String,
-        required: true
+        required: false
     },
     "type": {
         type: Number,
@@ -23,10 +23,13 @@ const schema = Schema({
         type: Boolean,
         default: false
     },
-    "comments": [{
-        type: Schema.ObjectId,
-        ref: 'Comment'
-    }]
+    "comments": {
+        type: [{
+            type: Schema.ObjectId,
+            ref: 'Comment'
+        }],
+        required: false
+    }
 });
 
 module.exports = mongoose.model('Post', schema);

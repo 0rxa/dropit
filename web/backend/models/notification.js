@@ -12,6 +12,7 @@ const schema = Schema({
         required: true
     },
     "timestamp": {
+        type: Number,
         default: Date.now()
     },
     "sender": {

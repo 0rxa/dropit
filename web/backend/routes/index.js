@@ -1,4 +1,5 @@
 module.exports = {
-	profileRouter: require('./profile.js'),
-	postRouter: require('./post.js')
+    userRouter: require('./user.js'),
+    channelRouter: require('./channel.js'),
+    commentRouter: require('./comment.js')
 }

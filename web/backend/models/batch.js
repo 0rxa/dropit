@@ -8,7 +8,8 @@ const schema = Schema({
         type: Schema.ObjectId,
         ref: 'User'
     },
-    "timetamp": {
+    "timestamp": {
+        type: Number,
         default: Date.now()
     },
     "posts": [{

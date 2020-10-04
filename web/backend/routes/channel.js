@@ -1,12 +1,21 @@
 const router = require('express').Router();
 const mongoose = require('mongoose');
 const Model = require('../models');
+const Storage = require('../storage');
 
 const jwt = require('jsonwebtoken');
 if(process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
-const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = process.env;
+const { ACCESS_TOKEN_SECRET,
+    REFRESH_TOKEN_SECRET,
+    AWS_SECRET_ACCESS_KEY,
+    AWS_ACCESS_KEY_ID,
+    AWS_BUCKET_NAME
+} = process.env;
+
+const storage = new Storage(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME);
+
 
 router.get('/', authenticate, async (request, response) => {
     const channels = await Model.Channel.find( { "members": { "_id": request.user.id } }).populate('members').exec();
@@ -51,8 +60,11 @@ router.post('/create', authenticate, (request, response) => {
     });
 });
 
-router.post('/:id/push', authenticate, (request, response) => {
-    Model.Post.insertMany(request.body.posts, (err, docs) => {
+router.post('/:id/push', authenticate, async (request, response) => {
+
+    posts = await storage.bulkUpload(request.body.posts, request.params.id);
+
+    Model.Post.insertMany(posts, (err, docs) => {
         if(err) {
             console.log(err);
             response.sendStatus(500);

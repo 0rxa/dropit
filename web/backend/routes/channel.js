@@ -60,10 +60,11 @@ router.post('/create', authenticate, (request, response) => {
     });
 });
 
-router.post('/:id/push', authenticate, async (request, response) => {
-
-    posts = await storage.bulkUpload(request.body.posts, request.params.id);
-
+router.post('/:id/push', authenticate, storage.upload.single('file'), async (request, response) => {
+    // posts = await storage.bulkUpload(request.body.posts, request.params.id);
+    console.log(file);
+    console.log('test');
+    return;
     Model.Post.insertMany(posts, (err, docs) => {
         if(err) {
             console.log(err);

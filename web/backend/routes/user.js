@@ -10,7 +10,6 @@ const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = process.env;
 
 router.post('/login', (request, response) => {
 	let user = request.body;
-    console.log(user)
 	Model.User.findOne({ username: user.username, password: user.password }, (err, registeredUser) => {
 		if(err) {
 			return response.sendStatus(500);

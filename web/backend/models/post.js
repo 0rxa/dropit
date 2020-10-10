@@ -16,7 +16,7 @@ const schema = Schema({
         required: false
     },
     "type": {
-        type: Number,
+        type: String,
         required: true
     },
     "isBookmarked": {

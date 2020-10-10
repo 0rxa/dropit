@@ -15,6 +15,7 @@ const { ACCESS_TOKEN_SECRET,
 } = process.env;
 
 const storage = new Storage(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME);
+const upload = storage.upload.array('batch');
 
 
 router.get('/', authenticate, async (request, response) => {
@@ -60,11 +61,8 @@ router.post('/create', authenticate, (request, response) => {
     });
 });
 
-router.post('/:id/push', authenticate, storage.upload.single('file'), async (request, response) => {
-    // posts = await storage.bulkUpload(request.body.posts, request.params.id);
-    console.log(file);
-    console.log('test');
-    return;
+router.post('/:id/push', authenticate, upload, async (request, response) => {
+    posts = request.files.map((file) => { return {"link": file.location, "type": file.mimetype} });
     Model.Post.insertMany(posts, (err, docs) => {
         if(err) {
             console.log(err);

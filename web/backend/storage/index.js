@@ -17,7 +17,7 @@ const S3 = class {
                 s3: this.bucket,
                 bucket: this.bucket_name,
                 key: (request, file, callback) => {
-                    callback(null, `{request.params.id}/{Date.now().toString()}/{file.originalname}`);
+                    callback(null, `${request.params.id}/${Date.now().toString()}/${file.originalname}`);
                 }
             })
         })

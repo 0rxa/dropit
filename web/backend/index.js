@@ -4,7 +4,12 @@ const jwt = require('jsonwebtoken');
 if(process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
-const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = process.env;
+const { ACCESS_TOKEN_SECRET,
+    REFRESH_TOKEN_SECRET,
+    AWS_COGNITO_POOL_ID,
+    AWS_COGNITO_CLIENT_ID,
+    AWS_COGNITO_REGION
+} = process.env;
 
 const mongoose = require('mongoose');
 mongoose.Promise = Promise;
@@ -15,6 +20,7 @@ let dbConnection = mongoose.connect(dbConnectionURL, { useNewUrlParser: true, us
 const Model = require('./models')
 
 const express = require('express')
+const { authenticate, authenticationError } = require('aws-cognito-express');
 const server = express()
 
 const Routes = require('./routes');
@@ -23,21 +29,13 @@ server.use('/user', Routes.userRouter);
 server.use('/channel', Routes.channelRouter);
 server.use('/comment', Routes.commentRouter);
 
-
-function authenticate(request, response, next) {
-	const authHeader = request.headers['authorization'];
-	const token = authHeader && authHeader.split(' ')[1];
-
-	if(token == null) return response.sendStatus(401);
-
-	jwt.verify(token, ACCESS_TOKEN_SECRET, (err, user) => {
-		if(err) return response.sendStatus(403);
-		else {
-			request.user = user;
-			next();
-		}
-	});
-}
+server.use(authenticate({
+    region: AWS_COGNITO_REGION,
+    userPoolId: AWS_COGNITO_POOL_ID,
+    tokenUse: [ 'id', 'access'],
+    audience: [ AWS_COGNITO_CLIENT_ID ]
+}));
+server.use(authenticationError());
 
 dbConnection.then(() => {
 	server.listen(PORT, () => {
